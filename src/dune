@@ -1,9 +1,10 @@
 (executable
  (name punchboy)
- (libraries js_of_ocaml-lwt)
  (modes byte)
  (preprocess
-  (pps js_of_ocaml-ppx)))
+  (pps js_of_ocaml-ppx))
+ (modules_without_implementation import)
+ (libraries js_of_ocaml-lwt))
 
 (rule
  (targets main.js)
