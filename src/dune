@@ -1,21 +1,15 @@
 (executable
  (name punchboy)
- (modes byte)
+ (modes js)
  (preprocess
   (pps js_of_ocaml-ppx))
- (modules_without_implementation import)
- (libraries js_of_ocaml-lwt))
+ (modules_without_implementation import))
 
 (rule
  (targets main.js)
+ (deps punchboy.bc.js)
  (action
-  (run
-   %{bin:js_of_ocaml}
-   --source-map
-   %{dep:punchboy.bc}
-   -o
-   %{targets}
-   --pretty)))
+  (copy punchboy.bc.js main.js)))
 
 (alias
  (name default)

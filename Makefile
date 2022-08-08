@@ -9,7 +9,7 @@ clean:
 	dune clean
 
 fmt:
-	-dune build @fmt --auto-promote
+	-dune fmt
 
 deps:
-	dune external-lib-deps --missing @@default
+	opam install . --deps-only
