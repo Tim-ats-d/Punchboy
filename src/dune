@@ -3,7 +3,7 @@
  (modes js)
  (preprocess
   (pps js_of_ocaml-ppx))
- (modules_without_implementation import))
+ (libraries zed))
 
 (rule
  (targets main.js)

@@ -1,39 +1,51 @@
-open Import
+open Js_of_ocaml
 
-let document = Html.window##.document
+let doc = Dom_html.window##.document
 
-module Elem = Element.Make (struct
-  let document = document
+module Widget = Widgets.Make (struct
+  let doc = doc
 end)
 
-let split str callback =
-  String.fold_left (fun acc chr -> callback chr :: acc) [] str |> List.rev
+let ( <+> ) = Dom.appendChild
+let ( <-> ) = Dom.removeChild
+
+let colored_lyrics lyrics =
+  let palette = new Widget.palette ~default:"fff" ~initial_clr:"#ff5351" in
+  let frgmt = doc##createDocumentFragment in
+  let column = Dom_html.createDiv doc in
+  column##.id := Js.string "lyrics";
+  let div = Dom_html.createDiv doc in
+  column <+> div;
+  frgmt <+> column;
+  frgmt <+> palette#make_picker;
+  Js.to_string lyrics |> Zed_string.of_utf8
+  |> Fun.flip
+       (Zed_string.fold (fun zchr acc ->
+            new Widget.clickable_colored_char zchr ~palette :: acc))
+       []
+  |> List.rev
+  |> List.iter (fun chr -> div <+> chr#node);
+  frgmt
+
+let with_click button f =
+  button##.onclick :=
+    Dom_html.handler (fun _ ->
+        f ();
+        Js._false)
 
 let onload _ =
-  let main =
-    Js.Opt.get
-      (document##getElementById (Js.string "main"))
-      (fun () -> assert false)
+  let main = Dom_html.getElementById "main" in
+  let main_column = Dom_html.getElementById "main-column" in
+  let go_button =
+    Option.get Dom_html.(getElementById_coerce "go-button" CoerceTo.input)
   in
-  let palette =
-    new Elem.palette ~default:(Js.string "#fff") ~current:(Js.string "#ff5351")
-  in
-  Dom.appendChild main
-    (Elem.destroy_after_input main "Go" (fun text ->
-         let column = Html.createDiv document in
-         column##.id := Js.string "post-input";
-         let div = Html.createDiv document in
-         Dom.appendChild column div;
-         Dom.appendChild main column;
-         Dom.appendChild main palette#make_picker;
-         let chars =
-           split (Js.to_string text) (fun chr ->
-               let div = Html.createDiv document in
-               div##.id := Js.string "char";
-               new Elem.clickable_colored_char div chr ~palette)
-         in
-         List.iter (fun cchar -> Dom.appendChild div cchar#get) chars));
-
+  with_click go_button (fun () ->
+      let textarea =
+        Option.get
+          Dom_html.(getElementById_coerce "lyrics-box" CoerceTo.textarea)
+      in
+      main <-> main_column;
+      main <+> colored_lyrics textarea##.value);
   Js._false
 
-let () = Html.window##.onload := Html.handler onload
+let () = Dom_html.(window##.onload := handler onload)
