@@ -1,24 +1,19 @@
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 
-module Make : functor
-  (Document : sig
-     val doc : Dom_html.document Js.t
-   end)
-  -> sig
-  class palette :
-    default:string
-    -> initial_clr:string
-    -> object
-         method default : Js.js_string Js.t
-         method color : Js.js_string Js.t
-         method make_picker : Dom.element Js.t
-       end
+class palette :
+  default:string
+  -> initial_clr:string
+  -> object
+       method color : Js.js_string Js.t
+       method default : Js.js_string Js.t
+       method make_picker : Html_types.input Tyxml_js.Html.elt
+     end
 
-  class clickable_colored_char :
-    Zed_char.t
-    -> palette:palette
-    -> object
-         method node : Dom_html.divElement Js.t
-         method set_color : Js.js_string Js.t -> unit
-       end
-end
+class clickable_colored_char :
+  Zed_char.t
+  -> palette:palette
+  -> object
+       method node : Html_types.div Tyxml_js.Html.elt
+       method set_color : Js.js_string Js.t -> unit
+     end

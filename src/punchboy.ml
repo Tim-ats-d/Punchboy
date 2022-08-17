@@ -1,31 +1,28 @@
 open Js_of_ocaml
-
-let doc = Dom_html.window##.document
-
-module Widget = Widgets.Make (struct
-  let doc = doc
-end)
+open Js_of_ocaml_tyxml
 
 let ( <+> ) = Dom.appendChild
 let ( <-> ) = Dom.removeChild
 
 let colored_lyrics lyrics =
-  let palette = new Widget.palette ~default:"fff" ~initial_clr:"#ff5351" in
-  let frgmt = doc##createDocumentFragment in
-  let column = Dom_html.createDiv doc in
-  column##.id := Js.string "lyrics";
-  let div = Dom_html.createDiv doc in
-  column <+> div;
-  frgmt <+> column;
-  frgmt <+> palette#make_picker;
-  Js.to_string lyrics |> Zed_string.of_utf8
-  |> Fun.flip
-       (Zed_string.fold (fun zchr acc ->
-            new Widget.clickable_colored_char zchr ~palette :: acc))
-       []
-  |> List.rev
-  |> List.iter (fun chr -> div <+> chr#node);
-  frgmt
+  let palette = new Widgets.palette ~default:"fff" ~initial_clr:"#ff5351" in
+  let chars =
+    Js.to_string lyrics |> Zed_string.of_utf8
+    |> Fun.flip
+         (Zed_string.fold (fun zchr acc ->
+              (new Widgets.clickable_colored_char zchr ~palette)#node :: acc))
+         []
+    |> List.rev
+  in
+  Tyxml_js.(
+    To_dom.of_div
+      Html.(
+        div ~a:[]
+          [
+            div
+              ~a:[ a_id "lyrics" ]
+              [ div ~a:[] chars; div ~a:[] [ palette#make_picker ] ];
+          ]))
 
 let with_click button f =
   button##.onclick :=

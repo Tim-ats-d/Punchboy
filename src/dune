@@ -3,7 +3,7 @@
  (modes js)
  (preprocess
   (pps js_of_ocaml-ppx))
- (libraries zed))
+ (libraries js_of_ocaml-tyxml zed))
 
 (rule
  (targets main.js)
