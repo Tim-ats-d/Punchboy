@@ -26,11 +26,7 @@
   dune
   (ocaml
    (>= 4.13))
-  (ocamlformat
-   (>= 0.21.0))
-  (js_of_ocaml
-   (>= 4.0.0))
-  (js_of_ocaml-ppx
-   (>= 4.0.0))
-  (js_of_ocaml-lwt
-   (>= 4.0.0))))
+  ocamlformat
+  js_of_ocaml
+  js_of_ocaml-ppx
+  js_of_ocaml-tyxml))

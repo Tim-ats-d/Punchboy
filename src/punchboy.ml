@@ -5,24 +5,24 @@ let ( <+> ) = Dom.appendChild
 let ( <-> ) = Dom.removeChild
 
 let colored_lyrics lyrics =
-  let palette = new Widgets.palette ~default:"fff" ~initial_clr:"#ff5351" in
+  let palette = new Widgets.palette ~default:"#fff" ~initial_clr:"#ff5351" in
   let chars =
     Js.to_string lyrics |> Zed_string.of_utf8
-    |> Fun.flip
+    |> (fun zed ->
          (Zed_string.fold (fun zchr acc ->
               (new Widgets.clickable_colored_char zchr ~palette)#node :: acc))
-         []
+           zed [])
     |> List.rev
   in
-  Tyxml_js.(
-    To_dom.of_div
-      Html.(
-        div ~a:[]
-          [
-            div
-              ~a:[ a_id "lyrics" ]
-              [ div ~a:[] chars; div ~a:[] [ palette#make_picker ] ];
-          ]))
+  let open Tyxml_js in
+  To_dom.of_div
+    Html.(
+      div ~a:[]
+        [
+          div
+            ~a:[ a_id "lyrics" ]
+            [ div ~a:[] chars; div ~a:[] [ palette#make_picker ] ];
+        ])
 
 let with_click button f =
   button##.onclick :=
